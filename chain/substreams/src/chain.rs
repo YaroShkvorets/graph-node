@@ -165,12 +165,14 @@ impl Blockchain for Chain {
         _logger: &Logger,
         number: BlockNumber,
     ) -> Result<BlockPtr, IngestorError> {
-        // This is the same thing TriggersAdapter does, not sure if it's going to work but
-        // we also don't yet have a good way of getting this value until we sort out the
-        // chain store.
-        // TODO(filipe): Fix this once the chain_store is correctly setup for substreams.
+        let chain_store = self.chain_store();
+        let mut hashes = chain_store.block_hashes_by_block_number(number)?;
+        let hash = match hashes.len() {
+            1 => hashes.pop().unwrap(),
+            _ => return Err(IngestorError::Unknown(anyhow::anyhow!("block number not found"))),
+        };
         Ok(BlockPtr {
-            hash: BlockHash::from(vec![0xff; 32]),
+            hash,
             number,
         })
     }
