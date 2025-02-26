@@ -1454,7 +1454,8 @@ impl UnresolvedMappingABI {
                 self.name, self.file.link
             )
         })?;
-        let contract = Contract::load(&*contract_bytes)?;
+        let contract = Contract::load(&*contract_bytes)
+            .with_context(|| format!("failed to load ABI {}", self.name))?;
         Ok(MappingABI {
             name: self.name,
             contract,
